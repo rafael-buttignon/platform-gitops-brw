@@ -1,2 +1,3 @@
 # Ignorar arquivos de credenciais e outros segredos
 azure-credentials.json
+platform-bootstrap/azure-credentials.json
