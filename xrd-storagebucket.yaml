@@ -1,0 +1,76 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  # CONEXÃO 1: O nome segue o padrão <plural>.<group>
+  # Isso registra o tipo no Kubernetes
+  name: xstoragebuckets.custom.crossplane.io
+spec:
+  # CONEXÃO 2: Esse "group" é usado pela Composition e pelo Claim
+  # Na Composition: compositeTypeRef.apiVersion = "custom.crossplane.io/v1alpha1"
+  # No Claim: apiVersion = "custom.crossplane.io/v1alpha1"
+  group: custom.crossplane.io
+  names:
+    # CONEXÃO 3: Esse "kind" é referenciado pela Composition
+    # Na Composition: compositeTypeRef.kind = "XStorageBucket"
+    kind: XStorageBucket
+    plural: xstoragebuckets
+    singular: xstoragebucket
+    shortNames:
+      - sb
+  claimNames:
+    # CONEXÃO 4: Esse "kind" é usado pelo Claim para fazer o pedido
+    # No Claim: kind = "StorageBucket"
+    kind: StorageBucket
+    plural: storagebuckets
+  versions:
+    # CONEXÃO 5: Essa "version" compõe o apiVersion usado pela Composition e Claim
+    # apiVersion = group + "/" + version = "custom.crossplane.io/v1alpha1"
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                # CONEXÃO 6: Esses campos são os que a Composition lê via "patches"
+                # e o Claim preenche no "spec.parameters"
+                parameters:
+                  type: object
+                  properties:
+                    environment:
+                      type: string
+                      description: "Ambiente (dev, staging, prod)"
+                      enum:
+                        - dev
+                        - staging
+                        - prod
+                      default: dev
+                    location:
+                      type: string
+                      description: "Região do Azure"
+                      enum:
+                        - eastus
+                        - westus2
+                        - brazilsouth
+                      default: eastus
+                    replicationType:
+                      type: string
+                      description: "Tipo de replicação (LRS, GRS, RAGRS, ZRS)"
+                      default: LRS
+                      enum:
+                        - LRS
+                        - GRS
+                        - RAGRS
+                        - ZRS
+                    storageClass:
+                      type: string
+                      description: "Classe de storage (standard ou premium) — mapeado para accountTier pela Composition"
+                      enum:
+                        - standard
+                        - premium
+                      default: standard
+                  required:
+                    - environment

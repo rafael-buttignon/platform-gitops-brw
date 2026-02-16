@@ -1,0 +1,2 @@
+# Ignorar arquivos de credenciais e outros segredos
+azure-credentials.json

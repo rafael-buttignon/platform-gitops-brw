@@ -1,0 +1,22 @@
+# CONEXÃO COM XRD: apiVersion = spec.group + "/" + versions[0].name do XRD
+apiVersion: custom.crossplane.io/v1alpha1    # ← XRD: group (custom.crossplane.io) + version (v1alpha1)
+# CONEXÃO COM XRD: kind = spec.claimNames.kind do XRD
+kind: StorageBucket                           # ← XRD: claimNames.kind
+metadata:
+  # O nome do Claim é usado pela Composition para gerar:
+  # - Nome do RG: "rg-brewdat"
+  # - Nome do Storage Account: "stbrewdat" (remove hífens + prefixo "st")
+  # IMPORTANTE: manter nome curto! Storage Account na Azure tem limite de 24 caracteres
+  name: bdt
+  namespace: default
+spec:
+  # Esses campos são definidos no XRD (schema.properties.spec.properties.parameters)
+  # e mapeados pela Composition (patches: fromFieldPath → toFieldPath)
+  parameters:
+    environment: dev                  # ← OBRIGATÓRIO no XRD / Composition mapeia para tags.environment
+    location: eastus                  # ← XRD define as opções / Composition mapeia para spec.forProvider.location
+    replicationType: LRS              # ← XRD define / Composition mapeia para spec.forProvider.accountReplicationType
+    storageClass: standard            # ← XRD define / Composition mapeia para accountTier (standard→Standard, premium→Premium)
+  # CONEXÃO COM COMPOSITION: referencia o nome da Composition que implementa esse XRD
+  compositionRef:
+    name: storagebucket-azure          # ← Composition: metadata.name

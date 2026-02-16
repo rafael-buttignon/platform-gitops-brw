@@ -1,0 +1,117 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  # CONEXÃO COM CLAIM: O Claim referencia esse nome em compositionRef.name
+  name: storagebucket-azure
+  labels:
+    provider: azure
+    crossplane.io/xrd: xstoragebuckets.custom.crossplane.io
+spec:
+  # CONEXÃO COM XRD: Aponta para o group + version + kind definidos no XRD
+  compositeTypeRef:
+    apiVersion: custom.crossplane.io/v1alpha1  # ← vem do XRD: spec.group + versions[0].name
+    kind: XStorageBucket                        # ← vem do XRD: spec.names.kind
+
+  # Pipeline mode: forma moderna e recomendada do Crossplane
+  # Usa "functions" para processar os recursos (mais flexível que o modo legado "resources")
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        # Essa function precisa estar instalada no cluster
+        # kubectl apply -f function-patch-and-transform.yaml
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          # Resource Group — criado automaticamente junto com o Storage Account
+          - name: resource-group
+            base:
+              apiVersion: azure.upbound.io/v1beta1
+              kind: ResourceGroup
+              spec:
+                forProvider:
+                  location: eastus
+                providerConfigRef:
+                  name: default
+            patches:
+              # Mapeia a location do Claim para o Resource Group
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.location       # ← vem do Claim/XRD
+                toFieldPath: spec.forProvider.location         # ← vai para o RG na Azure
+              # Gera o nome do RG automaticamente: "rg-<nome-do-claim>"
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "rg-%s"
+
+          # Storage Account — o recurso principal
+          - name: storage-account
+            base:
+              apiVersion: storage.azure.upbound.io/v1beta2
+              kind: Account
+              spec:
+                forProvider:
+                  accountKind: StorageV2
+                  accountTier: Standard
+                  accountReplicationType: LRS
+                  location: eastus
+                  tags:
+                    managed-by: crossplane
+                providerConfigRef:
+                  # Referencia o ProviderConfig "default" (provider-config-azure.yaml)
+                  name: default
+            patches:
+              # Mapeia location
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.location       # ← vem do Claim/XRD
+                toFieldPath: spec.forProvider.location         # ← vai para o Account na Azure
+              # Mapeia environment como tag
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.environment
+                toFieldPath: spec.forProvider.tags.environment
+              # Gera nome do Storage Account: remove hífens e adiciona prefixo "st"
+              # Ex: "my-bucket" → "stmybucket"
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+                transforms:
+                  - type: string
+                    string:
+                      type: Replace
+                      replace:
+                        search: "-"
+                        replace: ""
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "st%s"
+              # Conecta o Storage Account ao Resource Group pelo nome
+              # Gera: "rg-<nome-do-claim>"
+              - type: FromCompositeFieldPath
+                fromFieldPath: metadata.name
+                toFieldPath: spec.forProvider.resourceGroupName
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "rg-%s"
+              # Mapeia replicationType
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.replicationType
+                toFieldPath: spec.forProvider.accountReplicationType
+              # Mapeia storageClass → accountTier usando transform "map"
+              # standard → Standard, premium → Premium
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.storageClass
+                toFieldPath: spec.forProvider.accountTier
+                transforms:
+                  - type: map
+                    map:
+                      standard: Standard
+                      premium: Premium
