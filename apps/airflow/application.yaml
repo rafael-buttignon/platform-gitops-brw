@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: airflow
+  source:
+    repoURL: https://airflow.apache.org
+    chart: airflow
+    targetRevision: "*"
+    helm:
+      values: |
+        executor: LocalExecutor
+
+        airflow:
+          config:
+            AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+
+        webserver:
+          defaultUser:
+            enabled: true
+            username: admin
+            password: admin
+            role: Admin
+            email: admin@example.com
+
+        postgresql:
+          enabled: true
+          image:
+            tag: latest
+
+        redis:
+          enabled: false
+
+        ingress:
+          web:
+            enabled: false
+
+        statsd:
+          enabled: false
+
+        workers:
+          replicas: 1
+
+        scheduler:
+          replicas: 1
+          waitForMigrations:
+            enabled: false
+
+        triggerer:
+          replicas: 1
+          waitForMigrations:
+            enabled: false
+
+        apiServer:
+          args:
+            - bash
+            - -c
+            - airflow db migrate && airflow fab-db migrate && exec airflow api-server --workers 1
+          waitForMigrations:
+            enabled: false
+
+        dagProcessor:
+          waitForMigrations:
+            enabled: false
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true

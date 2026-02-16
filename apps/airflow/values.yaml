@@ -1,0 +1,53 @@
+executor: LocalExecutor
+
+airflow:
+  config:
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+
+webserver:
+  defaultUser:
+    enabled: true
+    username: admin
+    password: admin
+    role: Admin
+    email: admin@example.com
+
+postgresql:
+  enabled: true
+  image:
+    tag: latest
+
+redis:
+  enabled: false
+
+ingress:
+  web:
+    enabled: false
+
+statsd:
+  enabled: false
+
+workers:
+  replicas: 1
+
+scheduler:
+  replicas: 1
+  waitForMigrations:
+    enabled: false
+
+triggerer:
+  replicas: 1
+  waitForMigrations:
+    enabled: false
+
+apiServer:
+  args:
+    - bash
+    - -c
+    - airflow db migrate && airflow fab-db migrate && exec airflow api-server --workers 1
+  waitForMigrations:
+    enabled: false
+
+dagProcessor:
+  waitForMigrations:
+    enabled: false
