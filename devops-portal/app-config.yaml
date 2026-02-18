@@ -1,6 +1,6 @@
 app:
   title: Scaffolded Backstage App
-  baseUrl: http://localhost:3009
+  baseUrl: http://localhost:3001
 
 organization:
   name: My Company
@@ -23,7 +23,7 @@ backend:
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
     origin:
-      - http://localhost:3009
+      - http://localhost:3001
       - http://localhost:3000
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
