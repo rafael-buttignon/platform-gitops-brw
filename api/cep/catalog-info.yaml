@@ -22,6 +22,10 @@ metadata:
     - url: http://localhost:8081/docs
       title: Swagger UI (FastAPI)
       icon: docs
+    - url: http://viacep.com.br
+      title: ViaCEP
+      icon: web
+      type: external-dependency
 spec:
   type: service
   lifecycle: experimental
