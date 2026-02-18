@@ -26,7 +26,6 @@
     "@backstage/plugin-catalog-backend": "^3.3.1",
     "@backstage/plugin-catalog-backend-module-logs": "^0.1.18",
     "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.2.16",
-    "@backstage/plugin-events-backend": "^0.5.9",
     "@backstage/plugin-kubernetes-backend": "^0.21.0",
     "@backstage/plugin-notifications-backend": "^0.6.1",
     "@backstage/plugin-permission-backend": "^0.7.7",
