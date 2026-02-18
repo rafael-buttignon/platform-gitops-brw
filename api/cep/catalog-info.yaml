@@ -1,0 +1,62 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: api-cep
+  description: API simples em FastAPI para consultar CEP via ViaCEP
+  tags:
+    - api
+    - rest
+    - python
+    - fastapi
+    - docker
+    - backend
+    - experimental
+
+  annotations:
+    github.com/project-slug: rafael-buttignon/platform-gitops-brw
+
+  links:
+    - url: https://github.com/rafael-buttignon/platform-gitops-brw/tree/main/api/cep
+      title: Repositorio (GitHub)
+      icon: github
+    - url: http://localhost:8081/docs
+      title: Swagger UI (FastAPI)
+      icon: docs
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:default/guests
+  providesApis:
+    - api:default/api-cep
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: api-cep
+  description: API de consulta de CEP
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: group:default/guests
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: API CEP
+      version: 1.0.0
+    paths:
+      /health:
+        get:
+          responses:
+            '200':
+              description: OK
+      /cep/{cep}:
+        get:
+          parameters:
+            - in: path
+              name: cep
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Sucesso
