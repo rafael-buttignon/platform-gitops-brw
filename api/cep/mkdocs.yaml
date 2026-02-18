@@ -1,0 +1,19 @@
+site_name: API CEP
+site_description: Documentacao tecnica da API de consulta de CEP
+repo_url: https://github.com/rafael-buttignon/platform-gitops-brw
+docs_dir: docs
+
+plugins:
+  - techdocs-core
+
+nav:
+  - Inicio: index.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
