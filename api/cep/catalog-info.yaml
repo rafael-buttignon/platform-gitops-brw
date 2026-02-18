@@ -25,7 +25,7 @@ metadata:
 spec:
   type: service
   lifecycle: experimental
-  owner: group:default/guests
+  owner: group:default/team-cep
   providesApis:
     - api:default/api-cep
 ---
@@ -37,7 +37,7 @@ metadata:
 spec:
   type: openapi
   lifecycle: experimental
-  owner: group:default/guests
+  owner: group:default/team-cep
   definition: |
     openapi: 3.0.0
     info:

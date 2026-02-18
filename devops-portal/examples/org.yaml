@@ -1,17 +1,67 @@
----
-# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-user
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: guest
-spec:
-  memberOf: [guests]
----
-# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-group
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
-  name: guests
+  name: team-cep
+  description: Time responsável pela API de CEP
+  tags:
+    - api
+    - backend
 spec:
   type: team
+  profile:
+    displayName: Team CEP
+    email: team-cep@empresa.com
   children: []
+  members:
+    - maria.silva
+    - joao.souza
+    - ana.lima
+    - pedro.alves
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: maria.silva
+  description: Desenvolvedora backend
+spec:
+  profile:
+    displayName: Maria Silva
+    email: maria.silva@empresa.com
+  memberOf:
+    - team-cep
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: joao.souza
+  description: Desenvolvedor platform
+spec:
+  profile:
+    displayName: Joao Souza
+    email: joao.souza@empresa.com
+  memberOf:
+    - team-cep
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: ana.lima
+  description: Desenvolvedora fullstack
+spec:
+  profile:
+    displayName: Ana Lima
+    email: ana.lima@empresa.com
+  memberOf:
+    - team-cep
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: pedro.alves
+  description: Engenheiro de confiabilidade
+spec:
+  profile:
+    displayName: Pedro Alves
+    email: pedro.alves@empresa.com
+  memberOf:
+    - team-cep
